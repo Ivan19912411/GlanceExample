@@ -13,7 +13,11 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.background
@@ -58,6 +62,7 @@ class StockAppWidget : GlanceAppWidget() {
     private fun Small(stateCount: Float) {
         Column(
             modifier = GlanceModifier
+                .clickable(actionRunCallback<RefreshAction>())
                 .fillMaxSize()
                 .background(GlanceTheme.colors.background)
                 .padding(8.dp)
@@ -71,6 +76,7 @@ class StockAppWidget : GlanceAppWidget() {
         Column(
             horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
             modifier = GlanceModifier
+                .clickable(actionRunCallback<RefreshAction>())
                 .fillMaxSize()
                 .background(GlanceTheme.colors.background)
                 .padding(8.dp)
@@ -115,5 +121,16 @@ class StockAppWidget : GlanceAppWidget() {
             text = "${PriceDataRepo.change} %",
             style = textStyle
         )
+    }
+}
+
+// Класс, который выполнится при клике на виджет
+class RefreshAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        PriceDataRepo.update()
     }
 }
