@@ -4,14 +4,20 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.provideContent
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.background
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
@@ -21,6 +27,13 @@ import androidx.glance.text.TextStyle
 import java.util.Locale
 
 class StockAppWidget : GlanceAppWidget() {
+
+    companion object {
+        private val smallMode = DpSize(100.dp, 80.dp)
+        private val mediumMode = DpSize(120.dp, 120.dp)
+    }
+
+    override val sizeMode: SizeMode = SizeMode.Responsive(setOf(smallMode, mediumMode))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
@@ -33,7 +46,12 @@ class StockAppWidget : GlanceAppWidget() {
     @Composable
     fun GlanceContent() {
         val stateCount by PriceDataRepo.currentPrice.collectAsState()
-        Small(stateCount)
+        val size = LocalSize.current
+
+        when (size) {
+            smallMode -> Small(stateCount)
+            mediumMode -> Medium(stateCount)
+        }
     }
 
     @Composable
@@ -45,6 +63,29 @@ class StockAppWidget : GlanceAppWidget() {
                 .padding(8.dp)
         ) {
             StockDisplay(stateCount)
+        }
+    }
+
+    @Composable
+    private fun Medium(stateCount: Float) {
+        Column(
+            horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(GlanceTheme.colors.background)
+                .padding(8.dp)
+        ) {
+            StockDisplay(stateCount)
+            Image(
+                provider = ImageProvider(
+                    if (PriceDataRepo.change > 0) com.example.glanceexample.R.drawable.up_arrow
+                    else com.example.glanceexample.R.drawable.down_arrow
+                ),
+                contentDescription = "Arrow Image",
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .padding(20.dp)
+            )
         }
     }
 
