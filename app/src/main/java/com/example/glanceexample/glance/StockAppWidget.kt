@@ -124,7 +124,6 @@ class StockAppWidget : GlanceAppWidget() {
     }
 }
 
-// Класс, который выполнится при клике на виджет
 class RefreshAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
